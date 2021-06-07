@@ -102,17 +102,6 @@ def view():
         WHERE id = ?
         """, viewid)
 
-        print(entry)
-
-        #prep = []
-        #for row in entry:
-            #prep.append({
-                #"entry": row['entry'],
-                #"title": row['title']
-            #})
-
-        #print(prep)
-
         return render_template("edit.html", entry=entry, viewid=viewid)
 
 
