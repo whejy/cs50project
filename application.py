@@ -7,7 +7,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import apology, login_required
+from helpers import login_required
 
 # Configure application
 app = Flask(__name__)
@@ -194,11 +194,13 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("must provide username", 403)
+            flash("Must provide username", "error")
+            return render_template("login.html")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 403)
+            flash("Must provide password", "error")
+            return render_template("login.html")
 
         # Query database for username
         rows = db.execute("""
@@ -208,7 +210,8 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return apology("invalid username and/or password", 403)
+            flash("Invalid username and/or password", "error")
+            return render_template("login.html")
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
@@ -229,19 +232,23 @@ def register():
 
     # Ensure username was submitted
     if not request.form.get("username"):
-        return apology("must provide username", 400)
+        flash("Must provide username", "error")
+        return render_template("login.html")
 
     # Ensure password was submitted
     elif not request.form.get("password"):
-        return apology("must provide password", 400)
+        flash("Must provide password", "error")
+        return render_template("login.html")
 
     # Ensure password was entered twice for confirmation
     elif not request.form.get("confirmation"):
-        return apology("must confirm password", 400)
+        flash("Please confirm password", "error")
+        return render_template("login.html")
 
     # Ensure password inputs match each other
     elif not request.form.get("password") == request.form.get("confirmation"):
-        return apology("passwords do not match", 400)
+        flash("Passwords do not match", "error")
+        return render_template("login.html")
 
     # Ensure username is unique. Query database for username input by user. If length of this returned row is >0 then username
     # already exists
@@ -250,7 +257,8 @@ def register():
     WHERE username = ?
     """, request.form.get("username"))
     if len(rows) != 0:
-        return apology("username already exists", 400)
+        flash("That username is already taken", "error")
+        return render_template("login.html")
 
     # If all prerequisites are successful, update database with new username and password(hashed) and return user to login screen
     db.execute("""
