@@ -1,0 +1,144 @@
+#paper {
+    background-image: url("/static/pad.jpg");
+    background-repeat: repeat-y;
+    margin: auto;
+    width: 50%;
+    border: 3px solid #3B0B0B;
+    padding-bottom: 600px;
+    font-family: "Lucida Handwriting", cursive;
+    font-size: 1.875em;
+}
+
+#layout {
+    margin: auto;
+    width: 25%;
+}
+
+#apology {
+    margin: auto;
+    width: 50%;
+}
+
+#registerform {
+    padding-top: 100px;
+}
+
+h1 {
+    text-align: center;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+body {
+    background-color: #8E8268;
+}
+
+.dropdown-menu {
+    background-color: #AAA0A0
+}
+
+.nav-item a:hover, .btn:hover {
+    background-color: #86B3D1;
+}
+
+.btn {
+    display: block;
+    margin: auto;
+    background-color: #474853;
+    color: white;
+    border: none;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif
+}
+
+.new-entry-btn {
+    width: 100px;
+    background-color: #AAA0A0 ;
+    border: none;
+    float: left;
+}
+
+.inline {
+   display:inline-block;
+   margin-right:5px;
+}
+
+
+.table {
+    width: 100%;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.center {
+    text-align: center;
+}
+
+#firstcol {
+    width: 15%;
+}
+
+#middlecol {
+    width: 50%;
+}
+
+#rightcol {
+    width: 15%;
+}
+
+#finalcol {
+    width: 20%;
+}
+
+.field {
+    width: 100%;
+    border: none;
+    padding-top: 40px;
+    background-color: transparent;
+}
+
+.field:focus {
+    outline: none;
+}
+
+.table {
+    align-content:  center;
+    text-align: center;
+}
+
+.alert {
+    text-align: center;
+}
+
+.alert-error {
+  background-color: #EB617C;
+  border: black;
+  color: #95001E;
+}
+
+.grow-wrap {
+    display: grid;
+}
+
+.grow-wrap::after {
+    content: attr(data-replicated-value) " ";
+    white-space: pre-wrap;
+    visibility: hidden;
+}
+
+.grow-wrap > textarea {
+    resize: none;
+    overflow: hidden;
+}
+
+.grow-wrap > textarea,
+.grow-wrap::after {
+    padding: 0.5rem;
+    font: inherit;
+    grid-area: 1/ 1/ 2/ 2;
+}

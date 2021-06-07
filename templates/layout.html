@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Boostrap -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+
+        <!-- Emoji link -->
+        <link href="/static/emoji.png" rel="shortcut icon" type="image/png">
+
+        <!-- CSS link -->
+        <link href="/static/styles.css" rel="stylesheet">
+
+        <title>{% block title %}{% endblock %}</title>
+
+        <script>
+
+        //https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/
+
+        document.addEventListener('DOMContentLoaded', function() {
+          const growers = document.querySelectorAll(".grow-wrap");
+            growers.forEach((grower) => {
+              const textarea = grower.querySelector("textarea");
+              textarea.addEventListener("input", () => {
+              grower.dataset.replicatedValue = textarea.value;
+              });
+          });
+        });
+
+        </script>
+
+
+    </head>
+    <body>
+
+        <!-- Bootstrap nav module -->
+        <div class="collapse" id="navbarToggleExternalContent">
+          <div class="bg p-4">
+          </div>
+
+          <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #AAA0A0;">
+            <div class="container-fluid">
+              <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/dashboard">Dashboard</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/">New Entry</a>
+                  </li>
+                  {% if not session.user_id %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="/login">Log In/ Register</a>
+                  </li>
+                  {% else %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                  </li>
+                  {% endif %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Account
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                      <li><a class="dropdown-item" href="#">Action</a></li>
+                      <li><a class="dropdown-item" href="#">Change Password</a></li>
+                      <li><a class="dropdown-item" href="#">Delete Account</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            </nav>
+          </div>
+
+        <!-- Bootstrap Toggle Nav Bar -->
+        <nav class="navbar navbar-light bg">
+          <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+          </div>
+        </nav>
+
+          {% if get_flashed_messages() %}
+            <header>
+              {% for category, message in get_flashed_messages(with_categories=True) %}
+              <div class="alert alert-{{category}} alert-primary alert-dismissible center fade show" role="alert">
+                <strong>
+                  <div>
+                    <div class="alert-{{category}}">{{ message }}</div>
+                  </div>
+                </strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endfor %}
+            </header>
+          {% endif %}
+
+        <main>
+          {% block main %}{% endblock %}
+        </main>
+
+    </body>
+
+</html>

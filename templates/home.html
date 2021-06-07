@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+      <div class="container-fluid" id="paper">
+        <form action="/entry" method="post">
+          <span type="text">
+            <textarea class="field bold italic center" name="title" autocomplete="off" placeholder="Untitled"></textarea>
+            </span>
+          <div class="grow-wrap">
+            <textarea class="field" name="entry" onInput="this.parentNode.dataset.replicatedValue = this.value" autocomplete="off" placeholder="Dear Diary..." autofocus></textarea>
+          </div>
+          <br><br><button class="btn btn-dark" type="submit">Add Entry</button>
+        </form>
+      </div>
+{% endblock %}
