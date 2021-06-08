@@ -1,0 +1,11 @@
+2021-06-08 04:52:21
+
+My latest project is nearly finished.
+
+Just tightening up a few loose ends and the foundation is there, ready to submit.
+
+I still would like to attempt a few 'advanced' features, such as the ability to change and store fonts and colour schemes, as well as the ability to change the paper background.
+
+If I can't get those to work, the project is still ready to be submitted.
+
+I will then take a week break where I don't touch coding whatsoever, before returning to start a new course in Web Programming :)

@@ -18,7 +18,12 @@
         <td></td>
         <td></td>
         <td></td>
-        <td><a class="btn btn-primary new-entry-btn" href="/" role="button">New Entry</a></td>
+        <td>
+        <a class="btn btn-primary new-entry-btn inline" href="/" role="button">New Entry</a>
+        <form action="/download" method="get">
+        <a class="btn btn-primary new-entry-btn inline" type="submit" href="/download" name="download" role="button">Download</a>
+        </form>
+        </td>
       </tr>
       {% for row in entries %}
       <tr>

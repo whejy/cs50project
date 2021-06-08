@@ -42,9 +42,28 @@ def index():
     """)
     return render_template("home.html")
 
+@app.route("/download", methods=["GET"])
+@login_required
+def download():
+
+    entry = db.execute("""
+    SELECT entry, title, time
+    FROM entries
+    WHERE user_id = ?
+    """, session["user_id"])
+
+    counter=0
+    for row in entry:
+        with open ("%s.txt" % row['title'], "w") as text_file:
+            text_file.write("{}\n\n{}".format(row['time'], row['entry']))
+            counter += 1
+    flash(f"Successfully downloaded {counter} files", "success")
+    return redirect("/dashboard")
+
 @app.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():
+
     db.execute("""
     UPDATE entries
     SET user_id = ?
