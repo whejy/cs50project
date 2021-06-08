@@ -269,6 +269,55 @@ def register():
     # Send logged-in user to their index page
     return redirect("/dashboard")
 
+@app.route("/password", methods=["GET", "POST"])
+@login_required
+def password():
+
+    if request.method == "GET":
+        return render_template("password.html")
+    else:
+        # Get current user's login data
+        rows = db.execute("""
+        SELECT * FROM users
+        WHERE id = ?
+        """, session["user_id"])
+
+        # Ensure password was submitted
+        if not request.form.get("currentpassword"):
+            flash("Must provide password", "error")
+            return render_template("password.html")
+
+        # Ensure new password was entered twice for confirmation
+        elif not request.form.get("newpassword") or not request.form.get("confirmation"):
+            flash("Please confirm password", "error")
+            return render_template("password.html")
+
+        # Ensure current password is correct
+        elif not check_password_hash(rows[0]["hash"], request.form.get("currentpassword")):
+            flash("Password incorrect", "error")
+            return render_template("password.html")
+
+        # Ensure new password inputs match each other
+        elif not request.form.get("newpassword") == request.form.get("confirmation"):
+            flash("Passwords do not match", "error")
+            return render_template("password.html")
+
+        # Ensure new password is different from current password
+        elif check_password_hash(rows[0]["hash"], request.form.get("newpassword")):
+            flash("New password must be different from current password", "error")
+            return render_template("password.html")
+
+        # Update password
+        db.execute("""
+        UPDATE users
+        SET hash = ?
+        WHERE id = ?
+        """, generate_password_hash(request.form.get("newpassword")), session["user_id"])
+
+        flash("Password change successful", "success")
+
+        return redirect("/dashboard")
+
 
 @app.route("/logout")
 def logout():
