@@ -9,10 +9,10 @@
         <form action="/edit" method="post">
           {% for row in entry %}
           <span type="text">
-            <textarea class="field bold italic center" name="title" autocomplete="off">{{ row['title']}}</textarea>
+            <textarea class="field bold italic center" name="title" maxlength="25" autocomplete="off">{{ row['title']}}</textarea>
           </span>
           <div class="grow-wrap">
-            <textarea class="field" id ="viewentry" onInput="this.parentNode.dataset.replicatedValue = this.value" name="entry" autocomplete="off" autofocus>{{ row['entry']}}</textarea>
+            <textarea class="field" onInput="this.parentNode.dataset.replicatedValue = this.value" name="entry" autocomplete="off" autofocus>{{ row['entry']}}</textarea>
           </div>
           <br><br>
           <div class="row justify-content-md-center">
