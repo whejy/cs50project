@@ -63,10 +63,6 @@
                   <li class="nav-item">
                     <a class="nav-link" href="/login">Log In/ Register</a>
                   </li>
-                  {% else %}
-                  <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                  </li>
                   {% endif %}
                   <li class="nav-item">
                     <a class="nav-link" href="#">About</a>
@@ -77,8 +73,8 @@
                       Account
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                      <li><a class="dropdown-item" href="#">Action</a></li>
                       <li><a class="dropdown-item" href="/password">Change Password</a></li>
+                      <li><a class="dropdown-item" href="/logout">Log Out</a></li>
                       <li><a class="dropdown-item" href="/delete">Delete Account</a></li>
                     </ul>
                   </li>

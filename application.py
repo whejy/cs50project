@@ -1,9 +1,11 @@
 import os
 
+from os.path import basename
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, send_file
 from flask_session import Session
 from tempfile import mkdtemp
+from zipfile import ZipFile
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -46,19 +48,44 @@ def index():
 @login_required
 def download():
 
+    """ Download all entries """
+
     entry = db.execute("""
     SELECT entry, title, time
     FROM entries
     WHERE user_id = ?
+    ORDER BY time
     """, session["user_id"])
 
     counter=0
+    # Create a text file for each entry and then create a zip file containing those text files, using "counter" as a workaround
+    # for duplicate entry titles
     for row in entry:
-        with open ("%s.txt" % row['title'], "w") as text_file:
-            text_file.write("{}\n\n{}".format(row['time'], row['entry']))
-            counter += 1
-    flash(f"Successfully downloaded {counter} files", "success")
-    return redirect("/dashboard")
+        counter+=1
+        save_path = 'static/temp'
+        file_name = "{} (Entry {}).txt".format(row['title'], str(counter))
+        file_entry = "{}\n\n{}".format(row['time'], row['entry'])
+        completeName = os.path.join(save_path, file_name)
+        zipfilename = "MyEntries.zip"
+        with open (completeName, "w") as text_file:
+            text_file.write(file_entry)
+
+        # Create a ZipFile Object
+        with ZipFile(zipfilename, 'a') as zipObj:
+          # Add our text files to the zip
+          zipObj.write(completeName, basename(completeName))
+
+    #flash(f"Successfully downloaded {counter} files", "success")
+    # ^^ Doesn't work after implementing Send_File
+
+
+    return send_file('MyEntries.zip',
+                    mimetype="application/zip",
+                    as_attachment=True,
+                    cache_timeout=0)
+
+                    @app.route('/path/<name>')
+
 
 @app.route("/dashboard", methods=["GET"])
 @login_required
@@ -68,6 +95,12 @@ def dashboard():
     UPDATE entries
     SET user_id = ?
     WHERE user_id is null
+    """, session["user_id"])
+
+    title = db.execute("""
+    SELECT title
+    FROM entries
+    WHERE user_id = ?
     """, session["user_id"])
 
     journal = db.execute("""
@@ -93,6 +126,9 @@ def dashboard():
                 row['entry'] += "..."
             if len(row['title']) > 9:
                 row['title'] += "..."
+
+    if os.path.exists("MyEntries.zip"):
+        os.remove("MyEntries.zip")
 
     return render_template("dashboard.html", entries=entries)
 
@@ -345,7 +381,7 @@ def logout():
     # Forget any user_id
     session.clear()
 
-    flash("We hope to see you again soon!")
+    flash("See you next time!")
 
     # Redirect user to login form
     return redirect("/")
