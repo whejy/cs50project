@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block main %}
-<h1 class="display-3">My Journal</h1>
+<h1 class="display-3 center">My Journal</h1>
   <table class="table">
     <thead>
         <th scope="col" id="firstcol">Title</th>
@@ -19,10 +19,7 @@
         <td></td>
         <td></td>
         <td>
-        <a class="btn btn-primary new-entry-btn inline" href="/" role="button">New Entry</a>
-        <form action="/download" method="get">
-        <a class="btn btn-primary new-entry-btn inline" type="submit" href="/download" name="download" role="button">Download</a>
-        </form>
+        <a class="btn btn-primary new-entry-btn inline" id="newentrybtn" href="/" role="button">New Entry</a>
         </td>
       </tr>
       {% for row in entries %}
@@ -39,5 +36,15 @@
       </tr>
       {% endfor %}
     </tbody>
+    <tfoot>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>
+      <a class="btn btn-primary new-entry-btn" id="downloadbtn" href="/download" name="download" role="button">Download Entries</a>
+        </td>
+      </tr>
+    </tfoot>
   </table>
 {% endblock %}

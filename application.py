@@ -2,7 +2,7 @@ import os
 
 from os.path import basename
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, send_file
+from flask import Flask, flash, redirect, render_template, request, session, send_file, after_this_request
 from flask_session import Session
 from tempfile import mkdtemp
 from zipfile import ZipFile
@@ -36,6 +36,8 @@ Session(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///journal.db")
 
+save_path = "static/temp/"
+
 @app.route("/")
 def index():
     db.execute("""
@@ -57,45 +59,60 @@ def download():
     ORDER BY time
     """, session["user_id"])
 
-    counter=0
-    # Create a text file for each entry and then create a zip file containing those text files, using "counter" as a workaround
-    # for duplicate entry titles
-    for row in entry:
-        counter+=1
-        save_path = 'static/temp'
-        file_name = "{} (Entry {}).txt".format(row['title'], str(counter))
-        file_entry = "{}\n\n{}".format(row['time'], row['entry'])
-        completeName = os.path.join(save_path, file_name)
-        zipfilename = "MyEntries.zip"
-        with open (completeName, "w") as text_file:
-            text_file.write(file_entry)
+    if entry:
 
-        # Create a ZipFile Object
-        with ZipFile(zipfilename, 'a') as zipObj:
-          # Add our text files to the zip
-          zipObj.write(completeName, basename(completeName))
+        counter=0
+        # Create a text file for each entry and then create a zip file containing those text files, using "counter" as a workaround
+        # for duplicate entry titles
+        for row in entry:
+            counter+=1
+            save_path = 'static/temp/'
+            file_name = "{} (Entry {}).txt".format(row['title'], str(counter))
+            file_entry = "{}\n\n{}".format(row['time'], row['entry'])
+            completeName = os.path.join(save_path, file_name)
+            zipfilename = "MyEntries.zip"
+            with open (completeName, "w") as text_file:
+                text_file.write(file_entry)
 
-    #flash(f"Successfully downloaded {counter} files", "success")
-    # ^^ Doesn't work after implementing Send_File
+            # Create a ZipFile Object
+            with ZipFile(zipfilename, 'a') as zipObj:
+              # Add our text files to the zip
+              zipObj.write(completeName, basename(completeName))
 
+        #flash(f"Successfully downloaded {counter} files", "success")
+        # ^^ Doesn't work after implementing Send_File
 
-    return send_file('MyEntries.zip',
-                    mimetype="application/zip",
-                    as_attachment=True,
-                    cache_timeout=0)
+        # After zip file has been served, remove from server
+        @after_this_request
+        def remove_file(response):
+            os.remove(zipfilename)
+            return response
 
-                    @app.route('/path/<name>')
+        return send_file('MyEntries.zip',
+                        mimetype="application/zip",
+                        as_attachment=True,
+                        cache_timeout=0)
+
+    else:
+        flash("No entries to download!")
+        return redirect("/dashboard")
 
 
 @app.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():
 
+    # Add most recent unassigned entry to current user
     db.execute("""
     UPDATE entries
     SET user_id = ?
     WHERE user_id is null
     """, session["user_id"])
+
+    # Remove any previous downloaded entries stored on server
+    for f in os.listdir(save_path):
+        path = os.path.join(save_path, f)
+        os.remove(path)
 
     title = db.execute("""
     SELECT title
@@ -374,9 +391,31 @@ def password():
         return redirect("/dashboard")
 
 
+@app.route("/delete", methods=["GET", "POST"])
+@login_required
+def delete():
+
+    if request.method == "GET":
+        return render_template("delete.html")
+    else:
+        db.execute("""
+        DELETE FROM users
+        WHERE id = ?
+        """, session["user_id"])
+
+        session.clear()
+
+        flash("Account deleted", "success")
+        return render_template("home.html")
+
+
 @app.route("/logout")
 def logout():
     """Log user out"""
+
+    for f in os.listdir(save_path):
+        path = os.path.join(save_path, f)
+        os.remove(path)
 
     # Forget any user_id
     session.clear()

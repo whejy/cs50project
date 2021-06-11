@@ -12,6 +12,9 @@
 
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
 
+        <!-- JQuery -->
+        <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+
         <!-- Emoji link -->
         <link href="/static/emoji.png" rel="shortcut icon" type="image/png">
 
@@ -24,7 +27,7 @@
 
         //https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/
 
-
+        // Controls auto-resizing on input and load events for text box
         document.addEventListener('DOMContentLoaded', function() {
           const growers = document.querySelectorAll(".grow-wrap");
             growers.forEach((grower) => {
@@ -36,6 +39,12 @@
               grower.dataset.replicatedValue = textarea.value;
               });
           });
+        });
+
+        // Toggles active state for toggle bar links
+        $(document).ready(function() {
+          $('a.active').removeClass('active');
+          $('a[href="' + location.pathname + '"]').closest('a').addClass('active');
         });
 
         </script>
@@ -53,29 +62,20 @@
             <div class="container-fluid">
               <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav">
-                  <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/dashboard">Dashboard</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/">New Entry</a>
-                  </li>
+                  <li class="nav-item"><a class="nav-link active" aria-current="page" href="/dashboard">Dashboard</a></li>
+                  <li class="nav-item"><a class="nav-link" href="/">New Entry</a></li>
                   {% if not session.user_id %}
-                  <li class="nav-item">
-                    <a class="nav-link" href="/login">Log In/ Register</a>
-                  </li>
+                  <li class="nav-item"><a class="nav-link" href="/login">Log In/ Register</a></li>
                   {% endif %}
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
-                  </li>
+                  <li class="nav-item"><a class="nav-link" href="#">About</a></li>
                   {% if session.user_id %}
                   <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Account
-                    </a>
+                      Account</a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                      <li><a class="dropdown-item" href="/password">Change Password</a></li>
-                      <li><a class="dropdown-item" href="/logout">Log Out</a></li>
-                      <li><a class="dropdown-item" href="/delete">Delete Account</a></li>
+                      <li><a class="nav-link" href="/password">Change Password</a></li>
+                      <li><a class="nav-link" href="/logout">Log Out</a></li>
+                      <li><a class="nav-link" href="/delete">Delete Account</a></li>
                     </ul>
                   </li>
                   {% endif %}
