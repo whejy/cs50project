@@ -14,9 +14,25 @@
     width: 25%;
 }
 
-#apology {
-    margin: auto;
-    width: 50%;
+#fontselect {
+    position: fixed;
+    left: 5px;
+    bottom: 5px;
+}
+
+#input-font {
+    background-color: transparent;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    appearance: none
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
 }
 
 #passform {

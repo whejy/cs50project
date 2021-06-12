@@ -336,7 +336,7 @@ def register():
     # Remember which user is logged in
     session["user_id"] = rows[0]["id"]
 
-    flash("Registered!", "success")
+    flash("Registered! Welcome!", "success")
 
     # Send logged-in user to their index page
     return redirect("/dashboard")
@@ -398,6 +398,11 @@ def delete():
     if request.method == "GET":
         return render_template("delete.html")
     else:
+        db.execute("""
+        DELETE FROM entries
+        WHERE user_id = ?
+        """, session["user_id"])
+
         db.execute("""
         DELETE FROM users
         WHERE id = ?

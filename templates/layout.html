@@ -47,6 +47,11 @@
           $('a[href="' + location.pathname + '"]').closest('a').addClass('active');
         });
 
+        var changeFont = function(font){
+          console.log(font.value);
+            document.getElementById("paper").style.fontFamily = font.value;
+        };
+
         </script>
 
 

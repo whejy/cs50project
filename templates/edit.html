@@ -24,4 +24,15 @@
           {% endfor %}
         </form>
       </div>
+      <div id="fontselect"><i>Font: </i>
+        <select id="input-font" class="input" href="#" onchange="changeFont (this);">
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="'Brush Script MT', cursive">Brush Script</option>
+              <option value="'Courier New', monospace">Courier New</option>
+              <option value="Garamond, serif">Garamond</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="Lucida Handwriting, cursive" selected ="selected">Lucida Handwriting</option>
+              <option value="Times New Roman">Times New Roman</option>
+        </select>
+      </div>
 {% endblock %}
