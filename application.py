@@ -36,6 +36,7 @@ Session(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///journal.db")
 
+# Global variable for temporary download files
 save_path = "static/temp/"
 
 @app.route("/")
@@ -94,13 +95,18 @@ def download():
                         cache_timeout=0)
 
     else:
-        flash("No entries to download!")
+        flash("No entries to download!", "error")
         return redirect("/dashboard")
 
 
 @app.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():
+
+    ## Remove temp files
+    for f in os.listdir(save_path):
+        path = os.path.join(save_path, f)
+        os.remove(path)
 
     # Add most recent unassigned entry to current user
     db.execute("""
@@ -179,6 +185,12 @@ def view():
 
 @app.route("/entry", methods=["POST"])
 def entry():
+
+    ## Clear download folder
+    for f in os.listdir(save_path):
+        path = os.path.join(save_path, f)
+        os.remove(path)
+
     jentry = request.form.get("entry")
     title = request.form.get("title")
 
@@ -336,7 +348,8 @@ def register():
     # Remember which user is logged in
     session["user_id"] = rows[0]["id"]
 
-    flash("Registered! Welcome!", "success")
+    temp = request.form.get("username")
+    flash(f"Welcome {temp}!", "success")
 
     # Send logged-in user to their index page
     return redirect("/dashboard")
@@ -398,6 +411,12 @@ def delete():
     if request.method == "GET":
         return render_template("delete.html")
     else:
+
+        # Clear temp files
+        for f in os.listdir(save_path):
+            path = os.path.join(save_path, f)
+            os.remove(path)
+
         db.execute("""
         DELETE FROM entries
         WHERE user_id = ?
@@ -410,7 +429,7 @@ def delete():
 
         session.clear()
 
-        flash("Account deleted", "success")
+        flash("Account deleted")
         return render_template("home.html")
 
 

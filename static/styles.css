@@ -35,6 +35,11 @@ select {
     text-overflow: '';
 }
 
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #78756E;
+  opacity: 1; /* Firefox */
+}
+
 #passform {
     padding-top: 50px;
 }
@@ -48,11 +53,12 @@ select {
 h1 {
     padding-top: 50px;
     padding-bottom: 50px;
+    font-family: monospace
 }
 
 h4 {
     padding-top: 75px;
-    padding-bottom: 25px;
+    font-family: monospace;
 }
 
 body {
@@ -159,6 +165,7 @@ body {
   color: #95001E;
 }
 
+/* Textbox autoresize */
 .grow-wrap {
     display: grid;
 }
@@ -179,4 +186,32 @@ body {
     padding: 0.5rem;
     font: inherit;
     grid-area: 1/ 1/ 2/ 2;
+}
+
+/* Text animation */
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.typing-demo {
+  width: 10ch;
+  animation: typing 1.2s steps(15), blink .5s step-end infinite alternate;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid;
+  font-size: 2em;
+}
+
+@keyframes typing {
+  from {
+    width: 0
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent
+  }
 }

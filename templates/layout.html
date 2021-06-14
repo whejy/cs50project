@@ -25,10 +25,18 @@
 
         <script>
 
-        //https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/
-
-        // Controls auto-resizing on input and load events for text box
         document.addEventListener('DOMContentLoaded', function() {
+          textgrow();
+          toggle();
+        });
+
+        // Font selector
+        var changeFont = function(font){
+            document.getElementById("paper").style.fontFamily = font.value;
+        };
+
+        // Grows textbox with input
+        function textgrow () {
           const growers = document.querySelectorAll(".grow-wrap");
             growers.forEach((grower) => {
               const textarea = grower.querySelector("textarea");
@@ -39,21 +47,23 @@
               grower.dataset.replicatedValue = textarea.value;
               });
           });
-        });
+        }
 
         // Toggles active state for toggle bar links
-        $(document).ready(function() {
+        function toggle() {
           $('a.active').removeClass('active');
           $('a[href="' + location.pathname + '"]').closest('a').addClass('active');
-        });
+        }
 
-        var changeFont = function(font){
-          console.log(font.value);
-            document.getElementById("paper").style.fontFamily = font.value;
-        };
+        // Auto dismisses flask alert
+        function dismiss() {
+        $(".alert-dismissible").fadeTo(2000, 500).slideUp(500, function(){
+            $(".alert-dismissible").alert('close');
+        });
+        }
+
 
         </script>
-
 
     </head>
     <body>
@@ -102,14 +112,16 @@
           {% if get_flashed_messages() %}
             <header>
               {% for category, message in get_flashed_messages(with_categories=True) %}
-              <div class="alert alert-{{category}} alert-primary alert-dismissible center fade show" role="alert">
-                <strong>
-                  <div>
-                    <div class="alert-{{category}}">{{ message }}</div>
-                  </div>
-                </strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
+                <div class="alert alert-{{category}} alert-primary alert-dismissible center fade show" role="alert">
+                  <strong>
+                    <div>
+                      <div class="alert-{{category}}">{{ message }}</div>
+                    </div>
+                  </strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <!-- Trick for triggering JS event -->
+                <img src onerror='dismiss()'>
               {% endfor %}
             </header>
           {% endif %}
