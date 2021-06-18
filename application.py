@@ -39,13 +39,57 @@ db = SQL("sqlite:///journal.db")
 # Global variable for temporary download files
 save_path = "static/temp/"
 
+# Background image choices
+PAPER = [
+    "Classic",
+    "Crumpled",
+    "Old",
+    "Stained",
+    "Wall",
+    "Wood"
+]
+
 @app.route("/")
 def index():
     db.execute("""
     DELETE FROM entries
     WHERE user_id is null
     """)
-    return render_template("home.html")
+
+    # Query DB for user's background image preference
+    if session.get("user_id"):
+        background = db.execute("""
+        SELECT background
+        FROM users
+        WHERE id = ?
+        """, session["user_id"])
+
+        image = (background[0]['background'])
+
+        if image == None:
+            image = "url('/static/Classic.jpg')"
+
+        return render_template("home.html", image=image, paper=PAPER)
+
+    return render_template("home.html", paper=PAPER)
+
+@app.route("/about", methods=["GET"])
+def about():
+    return render_template("about.html")
+
+@app.route("/pad", methods=["POST"])
+def pad():
+    paper = request.form.getlist("pad")[0]
+    user = ""
+
+    if session.get("user_id"):
+        db.execute("""
+        UPDATE users
+        SET background = ?
+        WHERE id = ?
+        """, paper, session["user_id"])
+
+    return ('', 204)
 
 @app.route("/download", methods=["GET"])
 @login_required
@@ -95,18 +139,13 @@ def download():
                         cache_timeout=0)
 
     else:
-        flash("No entries to download!", "error")
+        flash("No entries to download.", "error")
         return redirect("/dashboard")
 
 
 @app.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():
-
-    ## Remove temp files
-    for f in os.listdir(save_path):
-        path = os.path.join(save_path, f)
-        os.remove(path)
 
     # Add most recent unassigned entry to current user
     db.execute("""
@@ -155,7 +194,9 @@ def dashboard():
 
     return render_template("dashboard.html", entries=entries)
 
-#CREATE TABLE entries (id INTEGER, user_id INTEGER, entry TEXT, title TEXT, time DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')), PRIMARY KEY(id), FOREIGN KEY(user_id) REFERENCES users(id));
+#CREATE TABLE entries (id INTEGER, user_id INTEGER, entry TEXT, title TEXT, time DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')), PRIMARY KEY(id), FOREIGN KEY(user_id) REFERENCES users(id))
+
+#CREATE TABLE users (id INTEGER, username TEXT, hash TEXT, PRIMARY KEY(id))
 
 @app.route("/view", methods=["POST"])
 def view():
@@ -180,7 +221,16 @@ def view():
         WHERE id = ?
         """, viewid)
 
-        return render_template("edit.html", entry=entry, viewid=viewid)
+        # Query DB for user's background image preference
+        background = db.execute("""
+        SELECT background
+        FROM users
+        WHERE id = ?
+        """, session["user_id"])
+
+        image = (background[0]['background'])
+
+        return render_template("edit.html", entry=entry, viewid=viewid, image=image, paper=PAPER)
 
 
 @app.route("/entry", methods=["POST"])
@@ -240,7 +290,7 @@ def edit():
         WHERE id = ?
         """, delid)
 
-        flash("Entry deleted")
+        flash("Entry deleted.")
 
     else:
         entry = request.form.get("entry")
@@ -267,12 +317,12 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            flash("Must provide username", "error")
+            flash("Must provide username.", "error")
             return render_template("login.html")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            flash("Must provide password", "error")
+            flash("Must provide password.", "error")
             return render_template("login.html")
 
         # Query database for username
@@ -283,7 +333,7 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            flash("Invalid username and/or password", "error")
+            flash("Invalid username and/or password.", "error")
             return render_template("login.html")
 
         # Remember which user has logged in
@@ -305,22 +355,22 @@ def register():
 
     # Ensure username was submitted
     if not request.form.get("username"):
-        flash("Must provide username", "error")
+        flash("Must provide username.", "error")
         return render_template("login.html")
 
     # Ensure password was submitted
     elif not request.form.get("password"):
-        flash("Must provide password", "error")
+        flash("Must provide password.", "error")
         return render_template("login.html")
 
     # Ensure password was entered twice for confirmation
     elif not request.form.get("confirmation"):
-        flash("Please confirm password", "error")
+        flash("Please confirm password.", "error")
         return render_template("login.html")
 
     # Ensure password inputs match each other
     elif not request.form.get("password") == request.form.get("confirmation"):
-        flash("Passwords do not match", "error")
+        flash("Passwords do not match.", "error")
         return render_template("login.html")
 
     # Ensure username is unique. Query database for username input by user. If length of this returned row is >0 then username
@@ -330,7 +380,7 @@ def register():
     WHERE username = ?
     """, request.form.get("username"))
     if len(rows) != 0:
-        flash("That username is already taken", "error")
+        flash("That username is already taken.", "error")
         return render_template("login.html")
 
     # If all prerequisites are successful, update database with new username and password(hashed) and return user to login screen
@@ -369,27 +419,27 @@ def password():
 
         # Ensure password was submitted
         if not request.form.get("currentpassword"):
-            flash("Must provide password", "error")
+            flash("Must provide password.", "error")
             return render_template("password.html")
 
         # Ensure new password was entered twice for confirmation
         elif not request.form.get("newpassword") or not request.form.get("confirmation"):
-            flash("Please confirm password", "error")
+            flash("Please confirm password.", "error")
             return render_template("password.html")
 
         # Ensure current password is correct
         elif not check_password_hash(rows[0]["hash"], request.form.get("currentpassword")):
-            flash("Password incorrect", "error")
+            flash("Password incorrect.", "error")
             return render_template("password.html")
 
         # Ensure new password inputs match each other
         elif not request.form.get("newpassword") == request.form.get("confirmation"):
-            flash("Passwords do not match", "error")
+            flash("Passwords do not match.", "error")
             return render_template("password.html")
 
         # Ensure new password is different from current password
         elif check_password_hash(rows[0]["hash"], request.form.get("newpassword")):
-            flash("New password must be different from current password", "error")
+            flash("New password must be different from current password.", "error")
             return render_template("password.html")
 
         # Update password
@@ -399,7 +449,7 @@ def password():
         WHERE id = ?
         """, generate_password_hash(request.form.get("newpassword")), session["user_id"])
 
-        flash("Password change successful", "success")
+        flash("Password change successful.", "success")
 
         return redirect("/dashboard")
 
@@ -429,8 +479,8 @@ def delete():
 
         session.clear()
 
-        flash("Account deleted")
-        return render_template("home.html")
+        flash("Account deleted.")
+        return redirect("/")
 
 
 @app.route("/logout")

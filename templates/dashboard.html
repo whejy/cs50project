@@ -25,7 +25,7 @@
         <td></td>
         <td></td>
         <td>
-        <a class="btn btn-primary new-entry-btn inline" id="newentrybtn" href="/" role="button">New Entry</a>
+        <a class="btn btn-primary new-entry-btn inline btnalt" href="/" role="button">New Entry</a>
         </td>
       </tr>
       {% for row in entries %}
@@ -35,8 +35,8 @@
         <td>{{ row["time"] }}</td>
         <td>
           <form action="/view" method="post">
-          <button class="btn btn-primary new-entry-btn inline" name="edit" type="submit" value={{ row["id"] }}>View</button>
-          <button class="btn btn-primary new-entry-btn inline" name="delete" type="submit" value={{ row["id"] }}>Delete</button>
+          <button class="btn btn-primary new-entry-btn inline btnalt" name="edit" type="submit" value={{ row["id"] }}>View</button>
+          <button class="btn btn-primary new-entry-btn inline btnalt" name="delete" type="submit" value={{ row["id"] }}>Delete</button>
           </form>
         </td>
       </tr>

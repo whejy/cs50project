@@ -1,5 +1,49 @@
+
+body {
+    background-color: #8E8268;
+}
+
+.dropdown-menu, #navbar, option {
+    background-color: #AAA0A0
+}
+
+.new-entry-btn {
+    width: 100px;
+    border: none;
+    float: left;
+}
+
+.nav-item a:hover, .btn:hover, #delete:hover {
+    background-color: #86B3D1 !important;
+}
+
+.btnalt {
+    background-color: #AAA0A0 !important;
+}
+
+.btn {
+    display: block;
+    margin: auto;
+    background-color: #474853;
+    color: white;
+    border: none;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif
+}
+
+
+#downloadbtn {
+    width: 75% !important;
+    background-color: #474853;
+
+}
+
+#delete {
+    width: 100%;
+    background-color: #474853;
+}
+
 #paper {
-    background-image: url("/static/pad.jpg");
+    background-image: url("/static/Classic.jpg");
     background-repeat: repeat-y;
     margin: auto;
     width: 50%;
@@ -20,7 +64,13 @@
     bottom: 5px;
 }
 
-#input-font {
+#padselect {
+    position: fixed;
+    left: 5px;
+    bottom: 30px;
+}
+
+.selector {
     background-color: transparent;
     outline: none;
     border: none;
@@ -33,6 +83,11 @@ select {
     -moz-appearance: none;
     text-indent: 1px;
     text-overflow: '';
+}
+
+.about {
+    width: 50%;
+    margin: auto;
 }
 
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -52,8 +107,8 @@ select {
 
 h1 {
     padding-top: 50px;
-    padding-bottom: 50px;
-    font-family: monospace
+    padding-bottom: 25px;
+    font-family: monospace;
 }
 
 h4 {
@@ -61,49 +116,13 @@ h4 {
     font-family: monospace;
 }
 
-body {
-    background-color: #8E8268;
-}
-
-.dropdown-menu {
-    background-color: #AAA0A0
-}
-
-.nav-item a:hover, .btn:hover, #downloadbtn:hover, #delete:hover{
-    background-color: #86B3D1;
-}
-
-
-.btn {
-    display: block;
-    margin: auto;
-    background-color: #474853;
-    color: white;
-    border: none;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif
-}
-
-.new-entry-btn {
-    width: 100px;
-    background-color: #AAA0A0 ;
-    border: none;
-    float: left;
+#deletetitle {
+    padding-bottom: 10px !important;
 }
 
 .inline {
    display:inline-block;
    margin-right:5px;
-}
-
-#downloadbtn {
-    width: 75% !important;
-    background-color: #474853;
-
-}
-
-#delete {
-    width: 100%;
-    background-color: #474853;
 }
 
 .table {

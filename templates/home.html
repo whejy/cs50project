@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block main %}
-      <div class="container-fluid" id="paper">
+      <div class="container-fluid" id="paper" style="background-image: {{ image }};">
         <form action="/entry" method="post">
           <span type="text">
             <textarea class="field bold italic center" name="title" autocomplete="off" maxlength="25" placeholder="Untitled"></textarea>
@@ -16,13 +16,22 @@
           <br><br><button class="btn btn-dark" type="submit">Add Entry</button>
         </form>
       </div>
+      <form action="/pad" method="post">
+        <div id="padselect"><i>Pad: </i>
+          <select name="pad" class="input selector" id="padselect2" href="#" onchange="changePad(this); this.form.submit()">
+            {% for image in paper %}
+            <option value="url('/static/{{ image }}.jpg')">{{ image }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
       <div id="fontselect"><i>Font: </i>
-        <select id="input-font" class="input" href="#" onchange="changeFont (this);">
+        <select class="input selector" href="#" onchange="changeFont (this);">
               <option value="Arial, sans-serif">Arial</option>
               <option value="Brush Script MT, cursive">Brush Script</option>
               <option value="Courier New, monospace">Courier New</option>
               <option value="Georgia, serif">Georgia</option>
-              <option value="Lucida Handwriting, cursive" selected ="selected">Lucida Handwriting</option>
+              <option value="Lucida Handwriting, cursive" selected="selected">Lucida Handwriting</option>
               <option value="Times New Roman">Times New Roman</option>
         </select>
       </div>

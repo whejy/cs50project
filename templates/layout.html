@@ -28,12 +28,35 @@
         document.addEventListener('DOMContentLoaded', function() {
           textgrow();
           toggle();
+          selectcheck();
         });
 
         // Font selector
         var changeFont = function(font){
             document.getElementById("paper").style.fontFamily = font.value;
+            };
+
+        // Background selector
+        var changePad = function(pad){
+            document.getElementById("paper").style.backgroundImage = pad.value;
         };
+
+        // Checks current background image and preselects the relevant option in Selection Box
+        function selectcheck () {
+          var sel = document.getElementById('padselect2');
+          var bg = document.getElementById('paper');
+          var str = bg.getAttribute('style');
+          var img2 = str.split(": ")[1];
+          var img = img2.split(";")[0];
+          var opts = sel.options;
+            for (let j = 0; j <= opts.length; j++) {
+              if (opts[j].value == img) {
+                sel.selectedIndex = j;
+                break;
+              }
+            }
+        }
+
 
         // Grows textbox with input
         function textgrow () {
@@ -73,7 +96,7 @@
           <div class="bg p-4">
           </div>
 
-          <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #AAA0A0;">
+          <nav class="navbar navbar-expand-lg navbar-light" id="navbar">
             <div class="container-fluid">
               <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav">
@@ -82,7 +105,7 @@
                   {% if not session.user_id %}
                   <li class="nav-item"><a class="nav-link" href="/login">Log In/ Register</a></li>
                   {% endif %}
-                  <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                  <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
                   {% if session.user_id %}
                   <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
