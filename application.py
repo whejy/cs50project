@@ -49,6 +49,16 @@ PAPER = [
     "Wood"
 ]
 
+FONTS = [
+    "Arial, sans-serif",
+    "Brush Script MT, cursive",
+    "Courier New, monospace",
+    "Georgia, serif",
+    "Lucida Handwriting, cursive",
+    "Times New Roman"
+]
+
+
 @app.route("/")
 def index():
     db.execute("""
@@ -66,21 +76,25 @@ def index():
 
         image = (background[0]['background'])
 
-        if image == None:
+        # If no image or font (new user) set to default
+        if image is None:
             image = "url('/static/Classic.jpg')"
 
-        return render_template("home.html", image=image, paper=PAPER)
+        return render_template("home.html", image=image, paper=PAPER, fonts=FONTS)
+    return render_template("home.html", paper=PAPER, fonts=FONTS)
 
-    return render_template("home.html", paper=PAPER)
 
 @app.route("/about", methods=["GET"])
 def about():
     return render_template("about.html")
 
+
 @app.route("/pad", methods=["POST"])
 def pad():
+
+    """ Store user's chosen background image """
+
     paper = request.form.getlist("pad")[0]
-    user = ""
 
     if session.get("user_id"):
         db.execute("""
@@ -90,6 +104,7 @@ def pad():
         """, paper, session["user_id"])
 
     return ('', 204)
+
 
 @app.route("/download", methods=["GET"])
 @login_required
@@ -104,11 +119,10 @@ def download():
     ORDER BY time
     """, session["user_id"])
 
+    # Create a text file for each entry and then create a zip file containing those text files, using "counter" as a workaround
+    # for duplicate entry titles
     if entry:
-
         counter=0
-        # Create a text file for each entry and then create a zip file containing those text files, using "counter" as a workaround
-        # for duplicate entry titles
         for row in entry:
             counter+=1
             save_path = 'static/temp/'
@@ -119,13 +133,8 @@ def download():
             with open (completeName, "w") as text_file:
                 text_file.write(file_entry)
 
-            # Create a ZipFile Object
             with ZipFile(zipfilename, 'a') as zipObj:
-              # Add our text files to the zip
               zipObj.write(completeName, basename(completeName))
-
-        #flash(f"Successfully downloaded {counter} files", "success")
-        # ^^ Doesn't work after implementing Send_File
 
         # After zip file has been served, remove from server
         @after_this_request
@@ -200,6 +209,9 @@ def dashboard():
 
 @app.route("/view", methods=["POST"])
 def view():
+
+    """ Allow user to update or delete entries from dashboard"""
+
     viewid = request.form.get("edit")
     delid = request.form.get("delete")
 
@@ -210,7 +222,7 @@ def view():
         WHERE id = ?
         """, delid)
 
-        flash("Entry deleted!", "success")
+        flash("Entry deleted.", "success")
 
         return redirect("/dashboard")
 
@@ -230,7 +242,10 @@ def view():
 
         image = (background[0]['background'])
 
-        return render_template("edit.html", entry=entry, viewid=viewid, image=image, paper=PAPER)
+        if image is None:
+            image = "url('/static/Classic.jpg')"
+
+        return render_template("edit.html", entry=entry, viewid=viewid, image=image, paper=PAPER, fonts=FONTS)
 
 
 @app.route("/entry", methods=["POST"])
@@ -245,7 +260,7 @@ def entry():
     title = request.form.get("title")
 
     if not jentry:
-        flash("Entry cannot be blank", "error")
+        flash("Entry cannot be blank.", "error")
         return redirect("/")
 
     db.execute("""
@@ -268,7 +283,6 @@ def entry():
     SET title = ?
     WHERE id = ?
     """, title, tempid[-1]['id'])
-
 
     if session.get("user_id") is None:
         return redirect("/login")
@@ -349,6 +363,7 @@ def login():
     else:
         return render_template("login.html")
 
+
 @app.route("/register", methods=["POST"])
 def register():
     """Register user"""
@@ -404,6 +419,7 @@ def register():
     # Send logged-in user to their index page
     return redirect("/dashboard")
 
+
 @app.route("/password", methods=["GET", "POST"])
 @login_required
 def password():
@@ -458,6 +474,8 @@ def password():
 @login_required
 def delete():
 
+    """ Delete user's account and all user's entries """
+
     if request.method == "GET":
         return render_template("delete.html")
     else:
@@ -487,6 +505,7 @@ def delete():
 def logout():
     """Log user out"""
 
+    # Clear temp folder
     for f in os.listdir(save_path):
         path = os.path.join(save_path, f)
         os.remove(path)
@@ -498,3 +517,16 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+
+
+def errorhandler(e):
+    """Handle error"""
+    if not isinstance(e, HTTPException):
+        e = InternalServerError()
+        flash("{}, {}".format(e.name, e.code), "error")
+    return redirect("/")
+
+
+# Listen for errors
+for code in default_exceptions:
+    app.errorhandler(code)(errorhandler)
