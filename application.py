@@ -328,33 +328,38 @@ def login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
+        username = request.form.get("username")
+        pword = request.form.get("password")
+        error = False
+        message = ""
 
         # Ensure username was submitted
-        if not request.form.get("username"):
-            flash("Must provide username.", "error")
-            return render_template("login.html")
+        if not username:
+            message = "Must provide username."
+            error = True
 
         # Ensure password was submitted
-        elif not request.form.get("password"):
-            flash("Must provide password.", "error")
+        elif not pword:
+            message = "Must provide password."
+            error = True
+
+        if error:
+            flash(f"{message}", "error")
             return render_template("login.html")
 
-        # Query database for username
+        # Ensure username exists and password is correct
         rows = db.execute("""
         SELECT * FROM users
         WHERE username = ?
-        """, request.form.get("username"))
-
-        # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+        """, username)
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], pword):
             flash("Invalid username and/or password.", "error")
             return render_template("login.html")
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
 
-        temp = request.form.get("username")
-        flash(f"Welcome back {temp}!")
+        flash(f"Welcome back, {username}!")
 
         # Redirect user to home page
         return redirect("/dashboard")
@@ -368,53 +373,73 @@ def login():
 def register():
     """Register user"""
 
+    username = request.form.get("username")
+    pword = request.form.get("password")
+    confirmation = request.form.get("confirmation")
+    error = False
+    message = ""
+
     # Ensure username was submitted
-    if not request.form.get("username"):
-        flash("Must provide username.", "error")
-        return render_template("login.html")
+    if not username:
+        message = "Must provide username."
+        error = True
 
     # Ensure password was submitted
-    elif not request.form.get("password"):
-        flash("Must provide password.", "error")
-        return render_template("login.html")
+    elif not pword:
+        message = "Must provide password."
+        error = True
 
     # Ensure password was entered twice for confirmation
-    elif not request.form.get("confirmation"):
-        flash("Please confirm password.", "error")
-        return render_template("login.html")
+    elif not confirmation:
+        message = "Please confirm password."
+        error = True
 
     # Ensure password inputs match each other
-    elif not request.form.get("password") == request.form.get("confirmation"):
-        flash("Passwords do not match.", "error")
+    elif not pword == confirmation:
+        message = "Passwords do not match."
+        error = True
+
+    elif len(username) < 3:
+        message = "Username must be at least 3 characters long."
+        error = True
+
+    elif not username.isalnum():
+        message = "Username may only contain letters and numbers."
+        error = True
+
+    elif len(pword) < 8:
+        message = "Password must be at least 8 characters long."
+        error = True
+
+    if error:
+        flash(f"{message}", "error")
         return render_template("login.html")
 
-    # Ensure username is unique. Query database for username input by user. If length of this returned row is >0 then username
-    # already exists
+    # Ensure username is unique
     rows = db.execute("""
     SELECT * FROM users
     WHERE username = ?
-    """, request.form.get("username"))
+    """, username)
     if len(rows) != 0:
         flash("That username is already taken.", "error")
         return render_template("login.html")
 
-    # If all prerequisites are successful, update database with new username and password(hashed) and return user to login screen
+    # If all prerequisites are successful, update database
     db.execute("""
     INSERT INTO users (username, hash)
     VALUES (?, ?)
-    """, request.form.get("username"), generate_password_hash(request.form.get("password")))
+    """, username, generate_password_hash(pword))
 
     # Prepare for auto-login (get username that was just inserted into database and set this id to the session id)
     rows = db.execute("""
     SELECT * FROM users
     WHERE username = ?
-    """, request.form.get("username"))
+    """, username)
 
     # Remember which user is logged in
     session["user_id"] = rows[0]["id"]
 
-    temp = request.form.get("username")
-    flash(f"Welcome {temp}!", "success")
+    flash(f"Welcome, {username}!", "success")
 
     # Send logged-in user to their index page
     return redirect("/dashboard")
@@ -433,29 +458,43 @@ def password():
         WHERE id = ?
         """, session["user_id"])
 
+        currentPword = request.form.get("currentpassword")
+        newPword = request.form.get("newpassword")
+        confirmation = request.form.get("confirmation")
+        error = False
+        message = ""
+
         # Ensure password was submitted
-        if not request.form.get("currentpassword"):
-            flash("Must provide password.", "error")
-            return render_template("password.html")
+        if not currentPword:
+            message = "Must provide password."
+            error = True
 
         # Ensure new password was entered twice for confirmation
-        elif not request.form.get("newpassword") or not request.form.get("confirmation"):
-            flash("Please confirm password.", "error")
-            return render_template("password.html")
+        elif not newPword or not confirmation:
+            message = "Please confirm password."
+            error = True
 
         # Ensure current password is correct
-        elif not check_password_hash(rows[0]["hash"], request.form.get("currentpassword")):
-            flash("Password incorrect.", "error")
-            return render_template("password.html")
+        elif not check_password_hash(rows[0]["hash"], currentPword):
+            message = "Password incorrect."
+            error = True
 
         # Ensure new password inputs match each other
-        elif not request.form.get("newpassword") == request.form.get("confirmation"):
-            flash("Passwords do not match.", "error")
-            return render_template("password.html")
+        elif not newPword == confirmation:
+            message = "Passwords do not match."
+            error = True
 
         # Ensure new password is different from current password
-        elif check_password_hash(rows[0]["hash"], request.form.get("newpassword")):
-            flash("New password must be different from current password.", "error")
+        elif check_password_hash(rows[0]["hash"], newPword):
+            message = "New password must be different from current password."
+            error = True
+
+        elif len(newPword) < 8:
+            message = "Password must be at least 8 characters long."
+            error = True
+
+        if error:
+            flash(f"{message}", "error")
             return render_template("password.html")
 
         # Update password
@@ -463,7 +502,7 @@ def password():
         UPDATE users
         SET hash = ?
         WHERE id = ?
-        """, generate_password_hash(request.form.get("newpassword")), session["user_id"])
+        """, generate_password_hash(newPword, session["user_id"]))
 
         flash("Password change successful.", "success")
 
