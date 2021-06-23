@@ -21,72 +21,11 @@
         <!-- CSS link -->
         <link href="/static/styles.css" rel="stylesheet">
 
+        <!-- JS link -->
+        <script src="/static/script.js" type="text/javascript"></script>
+
         <title>{% block title %}{% endblock %}</title>
 
-        <script>
-
-        document.addEventListener('DOMContentLoaded', function() {
-          textgrow();
-          toggle();
-          selectcheck();
-        });
-
-        // Font selector
-        var changeFont = function(font){
-            document.getElementById("paper").style.fontFamily = font.value;
-            };
-
-        // Background selector
-        var changePad = function(pad){
-            document.getElementById("paper").style.backgroundImage = pad.value;
-        };
-
-        // Checks current background image and preselects the relevant option in Selection Box
-        function selectcheck () {
-          var sel = document.getElementById('padselect2');
-          var bg = document.getElementById('paper');
-          if (bg) {
-            var str = bg.getAttribute('style');
-            var img2 = str.split(": ")[1];
-            var img = img2.split(";")[0];
-            var opts = sel.options;
-              for (let j = 0; j < opts.length; j++) {
-                if (opts[j].value == img) {
-                  sel.selectedIndex = j;
-                  break;
-                }
-              }
-          }
-        }
-
-        // Grows textbox to fit content
-        function textgrow () {
-          const growers = document.querySelectorAll(".grow-wrap");
-            growers.forEach((grower) => {
-              const textarea = grower.querySelector("textarea");
-              textarea.addEventListener("input", () => {
-              grower.dataset.replicatedValue = textarea.value;
-              });
-              textarea.addEventListener("focus", () => {
-              grower.dataset.replicatedValue = textarea.value;
-              });
-          });
-        }
-
-        // Toggles active state for toggle bar links
-        function toggle() {
-          $('a.active').removeClass('active');
-          $('a[href="' + location.pathname + '"]').closest('a').addClass('active');
-        }
-
-        // Auto dismisses flask alert
-        function dismiss() {
-        $(".alert-dismissible").fadeTo(2000, 500).slideUp(500, function(){
-            $(".alert-dismissible").alert('close');
-        });
-        }
-
-        </script>
     </head>
     <body>
 

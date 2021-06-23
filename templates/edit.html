@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block main %}
-      <div class="container-fluid" id="paper" style="background-image: {{ image }};">
+      <div class="container-fluid" id="paper" style="background-image: {{ image }}; font-family: {{ font }};">
         <form action="/edit" method="post">
           {% for row in entry %}
           <span type="text">
@@ -22,19 +22,19 @@
             </div>
           </div>
           {% endfor %}
+          <input type="hidden" id="fontSelector" name="fontSelector" />
+          <input type="hidden" id="padSelector" name="padSelector" />
         </form>
       </div>
-      <form action="/pad" method="post">
-        <div id="padselect"><i>Pad: </i>
-          <select name="pad" class="input selector" id="padselect2" href="#" onchange="this.form.submit(); changePad(this);">
-            {% for image in paper %}
-            <option value="url('/static/{{ image }}.jpg')">{{ image }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      </form>
+      <div id="padselect"><i>Pad: </i>
+        <select name="pad" class="input selector" id="padCheck" href="#" onchange="changePad(this);">
+          {% for image in paper %}
+          <option value="url('/static/{{ image }}.jpg')">{{ image }}</option>
+          {% endfor %}
+        </select>
+      </div>
       <div id="fontselect"><i>Font: </i>
-        <select class="input selector" href="#" onchange="changeFont (this);">
+        <select class="input selector" id="fontCheck" href="#" onchange="changeFont(this);">
           {% for font in fonts %}
           {% set displayFont = font.split(',') %}
             {% if font == "Lucida Handwriting, cursive" %}

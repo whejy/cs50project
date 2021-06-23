@@ -39,7 +39,7 @@ db = SQL("sqlite:///journal.db")
 # Global variable for temporary download files
 save_path = "static/temp/"
 
-# Background image choices
+# Background image options
 PAPER = [
     "Classic",
     "Crumpled",
@@ -49,6 +49,7 @@ PAPER = [
     "Wood"
 ]
 
+# Font options
 FONTS = [
     "Arial, sans-serif",
     "Brush Script MT, cursive",
@@ -58,6 +59,10 @@ FONTS = [
     "Times New Roman"
 ]
 
+# Character limits for preview in Dashboard view
+ENTRYLIMIT = 79
+TITLELIMIT = 9
+
 
 @app.route("/")
 def index():
@@ -66,44 +71,45 @@ def index():
     WHERE user_id is null
     """)
 
-    # Query DB for user's background image preference
+    # Remove any previous downloaded entries stored on server
+    for f in os.listdir(save_path):
+        path = os.path.join(save_path, f)
+        os.remove(path)
+
+    # Query DB for user's background image and font preference
     if session.get("user_id"):
-        background = db.execute("""
-        SELECT background
+        style = db.execute("""
+        SELECT background, font
         FROM users
         WHERE id = ?
         """, session["user_id"])
 
-        image = (background[0]['background'])
+        image = (style[0]['background'])
+        font = (style[0]['font'])
 
         # If no image or font (new user) set to default
         if image is None:
             image = "url('/static/Classic.jpg')"
 
-        return render_template("home.html", image=image, paper=PAPER, fonts=FONTS)
-    return render_template("home.html", paper=PAPER, fonts=FONTS)
+        if font is None:
+            font = "Lucida Handwriting, cursive"
+
+        return render_template("home.html",
+                                image=image,
+                                paper=PAPER,
+                                font=font,
+                                fonts=FONTS
+                                )
+
+    return render_template("home.html",
+                            paper=PAPER,
+                            fonts=FONTS
+                            )
 
 
 @app.route("/about", methods=["GET"])
 def about():
     return render_template("about.html")
-
-
-@app.route("/pad", methods=["POST"])
-def pad():
-
-    """ Store user's chosen background image """
-
-    paper = request.form.getlist("pad")[0]
-
-    if session.get("user_id"):
-        db.execute("""
-        UPDATE users
-        SET background = ?
-        WHERE id = ?
-        """, paper, session["user_id"])
-
-    return ('', 204)
 
 
 @app.route("/download", methods=["GET"])
@@ -145,7 +151,8 @@ def download():
         return send_file('MyEntries.zip',
                         mimetype="application/zip",
                         as_attachment=True,
-                        cache_timeout=0)
+                        cache_timeout=0
+                        )
 
     else:
         flash("No entries to download.", "error")
@@ -175,7 +182,8 @@ def dashboard():
     """, session["user_id"])
 
     journal = db.execute("""
-    SELECT * FROM entries
+    SELECT *
+    FROM entries
     WHERE user_id = ?
     ORDER BY time DESC
     """, session["user_id"])
@@ -184,8 +192,8 @@ def dashboard():
     entries = []
     for row in journal:
         entries.append({
-            "entry": row['entry'][0:80],
-            "title": row['title'][0:10],
+            "entry": row['entry'][0:ENTRYLIMIT + 1],
+            "title": row['title'][0:TITLELIMIT + 1],
             "time": row['time'],
             "id": row['id']
         })
@@ -193,19 +201,15 @@ def dashboard():
     # Add ellipsis to shortened entries if there is at least 1 entry
     if entries:
         for row in entries:
-            if len(row['entry']) > 79:
+            if len(row['entry']) > ENTRYLIMIT:
                 row['entry'] += "..."
-            if len(row['title']) > 9:
+            if len(row['title']) > TITLELIMIT:
                 row['title'] += "..."
 
-    if os.path.exists("MyEntries.zip"):
-        os.remove("MyEntries.zip")
+    return render_template("dashboard.html",
+                            entries=entries
+                            )
 
-    return render_template("dashboard.html", entries=entries)
-
-#CREATE TABLE entries (id INTEGER, user_id INTEGER, entry TEXT, title TEXT, time DATETIME DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'LOCALTIME')), PRIMARY KEY(id), FOREIGN KEY(user_id) REFERENCES users(id))
-
-#CREATE TABLE users (id INTEGER, username TEXT, hash TEXT, PRIMARY KEY(id))
 
 @app.route("/view", methods=["POST"])
 def view():
@@ -233,19 +237,30 @@ def view():
         WHERE id = ?
         """, viewid)
 
-        # Query DB for user's background image preference
+        # Query DB for user's font and background image preference
         background = db.execute("""
-        SELECT background
+        SELECT background, font
         FROM users
         WHERE id = ?
         """, session["user_id"])
 
         image = (background[0]['background'])
+        font = (background[0]['font'])
 
         if image is None:
             image = "url('/static/Classic.jpg')"
 
-        return render_template("edit.html", entry=entry, viewid=viewid, image=image, paper=PAPER, fonts=FONTS)
+        if font is None:
+            font = "Lucida Handwriting, cursive"
+
+        return render_template("edit.html",
+                                entry=entry,
+                                viewid=viewid,
+                                image=image,
+                                paper=PAPER,
+                                font=font,
+                                fonts=FONTS
+                                )
 
 
 @app.route("/entry", methods=["POST"])
@@ -258,6 +273,8 @@ def entry():
 
     jentry = request.form.get("entry")
     title = request.form.get("title")
+    font = request.form.get("fontSelector")
+    pad = request.form.get("padSelector")
 
     if not jentry:
         flash("Entry cannot be blank.", "error")
@@ -287,17 +304,36 @@ def entry():
     if session.get("user_id") is None:
         return redirect("/login")
 
+    # If logged in, update any font or background selection and add entry. Redirect to Dashboard where entry is assigned to user.
     else:
+
+        if pad:
+            db.execute("""
+            UPDATE users
+            SET background = ?
+            WHERE id = ?
+            """, pad, session["user_id"])
+
+        if font:
+            db.execute("""
+            UPDATE users
+            SET font = ?
+            WHERE id = ?
+            """, font, session["user_id"])
+
         flash("Entry added!", "success")
         return redirect("/dashboard")
 
 
 @app.route("/edit", methods=["POST"])
 def edit():
+
+    """ Allow user to update or delete current entry """
+
     delid = request.form.get("delete")
     updateid = request.form.get("update")
 
-    if not updateid:
+    if delid:
         db.execute("""
         DELETE
         FROM entries
@@ -306,14 +342,31 @@ def edit():
 
         flash("Entry deleted.")
 
-    else:
+    elif updateid:
         entry = request.form.get("entry")
         title = request.form.get("title")
+        font = request.form.get("fontSelector")
+        pad = request.form.get("padSelector")
+
         db.execute("""
         UPDATE entries
         SET entry = ?, title = ?, time = CURRENT_TIMESTAMP
         WHERE id = ?
         """, entry, title, updateid)
+
+        if pad:
+            db.execute("""
+            UPDATE users
+            SET background = ?
+            WHERE id = ?
+            """, pad, session["user_id"])
+
+        if font:
+            db.execute("""
+            UPDATE users
+            SET font = ?
+            WHERE id = ?
+            """, font, session["user_id"])
 
         flash("Entry updated!", "success")
 
@@ -349,7 +402,8 @@ def login():
 
         # Ensure username exists and password is correct
         rows = db.execute("""
-        SELECT * FROM users
+        SELECT *
+        FROM users
         WHERE username = ?
         """, username)
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], pword):
@@ -379,8 +433,18 @@ def register():
     error = False
     message = ""
 
+    # Ensure username is unique
+    rows = db.execute("""
+    SELECT *
+    FROM users
+    WHERE username = ?
+    """, username)
+    if len(rows) != 0:
+        message = "That username is already taken."
+        error = True
+
     # Ensure username was submitted
-    if not username:
+    elif not username:
         message = "Must provide username."
         error = True
 
@@ -415,15 +479,6 @@ def register():
         flash(f"{message}", "error")
         return render_template("login.html")
 
-    # Ensure username is unique
-    rows = db.execute("""
-    SELECT * FROM users
-    WHERE username = ?
-    """, username)
-    if len(rows) != 0:
-        flash("That username is already taken.", "error")
-        return render_template("login.html")
-
     # If all prerequisites are successful, update database
     db.execute("""
     INSERT INTO users (username, hash)
@@ -432,7 +487,8 @@ def register():
 
     # Prepare for auto-login (get username that was just inserted into database and set this id to the session id)
     rows = db.execute("""
-    SELECT * FROM users
+    SELECT *
+    FROM users
     WHERE username = ?
     """, username)
 
@@ -454,7 +510,8 @@ def password():
     else:
         # Get current user's login data
         rows = db.execute("""
-        SELECT * FROM users
+        SELECT *
+        FROM users
         WHERE id = ?
         """, session["user_id"])
 
