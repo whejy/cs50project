@@ -1,23 +1,19 @@
 # MY JOURNAL
 #### Video Demo:  <URL HERE>
 #### Description:
-My project is a web application that provides a simple way to create and
-manage a journal. I used Python, Flask, SQL, HTML, CSS and JavaScript.
-My priority was simplicity - the primary feature being that the user is able to begin typing right away without
-requiring a login. My philosophy was that if a potential feature would make the experience more complicated than simply
-writing on paper, it would not be implemented.
+My Journal is a web application that provides a simple way to create and
+manage an online journal. My goal is to provide an experience as close as possible to simply
+writing on paper. Filenames, dates and storage are managed automatically and a login is not required until after an
+entry has been submitted.
 
 The application features a download button that allows users to download to their machine all of their entries at once as a zip file.
-On the backend, once these files are served they are auto-deleted.
-The user is also able to change the font and choose a background paper image, with their selection being stored in the database.
-I debated whether to include the user's font selection in the database, but this would require information to be submitted to the
-backend which takes away from the 'smoothness' of the selection because the page then needs to be reloaded.
-I also considered storing the selected background image in the database BEFORE the user logs in and then associating it back with
-their user_id after log in (in the same way a journal entry is handled before login), but this quickly became very messy and was not
-as simple to implement.
+Before or after login, the user is able to change the font and choose a background image. Their preferences are stored in the database.
+One further design choice I have decided against is the ability to choose a colour theme for the website. While I believe this would be
+possible by using JavaScript to link to multiple different CSS files, I think it would take a large amount of time to implement,
+particularly to create the different colour palettes. I may come back to implementing such a feature in the future.
 
-"Static" folder contains the CSS file and all of the possible background image choices available to the user.
+"Static" folder contains the CSS and JS file and all of the possible background image choices available to the user.
 "Static/temp" is where download files are stored when the user requests to download their journal entries. The files in this folder are
 deleted upon being served.
 "Templates" folder contains the HTML files, all extended from "layout.html."
-"Helpers.py" contains one helper function which just requires a login for certain routes in "application.py"
+"Helpers.py" contains one helper function which requires a login for certain routes in "application.py"

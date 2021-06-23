@@ -66,6 +66,8 @@ TITLELIMIT = 9
 
 @app.route("/")
 def index():
+
+    # Remove all unassigned entries (accounts for premature exit where entry was added but no login)
     db.execute("""
     DELETE FROM entries
     WHERE user_id is null
@@ -162,6 +164,31 @@ def download():
 @app.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():
+
+    # Get style attributes the user has chosen before submitting their entry
+    style = db.execute("""
+    SELECT background, font
+    FROM entries
+    WHERE user_id is null
+    """)
+
+    if style:
+        pad = style[0]['background']
+        font = style[0]['font']
+
+        if pad:
+            db.execute("""
+            UPDATE users
+            SET background = ?
+            WHERE id = ?
+            """, pad, session["user_id"])
+
+        if font:
+            db.execute("""
+            UPDATE users
+            SET font = ?
+            WHERE id = ?
+            """, font, session["user_id"])
 
     # Add most recent unassigned entry to current user
     db.execute("""
@@ -281,9 +308,9 @@ def entry():
         return redirect("/")
 
     db.execute("""
-    INSERT INTO entries (entry)
-    VALUES (?)
-    """, jentry)
+    INSERT INTO entries (entry, background, font)
+    VALUES (?, ?, ?)
+    """, jentry, pad, font)
 
     tempid = db.execute("""
     SELECT id
@@ -304,23 +331,8 @@ def entry():
     if session.get("user_id") is None:
         return redirect("/login")
 
-    # If logged in, update any font or background selection and add entry. Redirect to Dashboard where entry is assigned to user.
+    # If logged in add entry. Redirect to Dashboard where entry is assigned to user.
     else:
-
-        if pad:
-            db.execute("""
-            UPDATE users
-            SET background = ?
-            WHERE id = ?
-            """, pad, session["user_id"])
-
-        if font:
-            db.execute("""
-            UPDATE users
-            SET font = ?
-            WHERE id = ?
-            """, font, session["user_id"])
-
         flash("Entry added!", "success")
         return redirect("/dashboard")
 
