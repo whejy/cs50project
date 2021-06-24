@@ -99,7 +99,7 @@ select {
     padding-top: 50px;
 }
 
-#passtitle {
+.passtitle {
     padding-top: 150px !important;
     padding-bottom: 0px !important;
 }
@@ -111,13 +111,9 @@ h1 {
     font-family: monospace;
 }
 
-h4 {
-    padding-top: 75px;
+h3 {
+    padding-top: 100px;
     font-family: monospace;
-}
-
-#deletetitle {
-    padding-bottom: 10px !important;
 }
 
 .inline {

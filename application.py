@@ -303,6 +303,16 @@ def entry():
     font = request.form.get("fontSelector")
     pad = request.form.get("padSelector")
 
+    if font:
+        if font not in FONTS:
+            return redirect("/")
+
+    if pad:
+        el = pad.split("/")[2]
+        paper = el.split(".")[0]
+        if paper not in PAPER:
+            return redirect("/")
+
     if not jentry:
         flash("Entry cannot be blank.", "error")
         return redirect("/")
@@ -367,6 +377,11 @@ def edit():
         """, entry, title, updateid)
 
         if pad:
+            el = pad.split("/")[2]
+            paper = el.split(".")[0]
+            if paper not in PAPER:
+                return redirect("/dashboard")
+
             db.execute("""
             UPDATE users
             SET background = ?
@@ -374,6 +389,9 @@ def edit():
             """, pad, session["user_id"])
 
         if font:
+            if font not in FONTS:
+                return redirect("/dashboard")
+
             db.execute("""
             UPDATE users
             SET font = ?
