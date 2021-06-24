@@ -28,16 +28,15 @@
         <a class="btn btn-primary new-entry-btn inline btnalt" href="/" role="button">New Entry</a>
         </td>
       </tr>
+      <form action="/view" method="post">
       {% for row in entries %}
-      <tr>
+      <tr id={{ row["id"] }}>
         <td class="italic">{{ row["title"] }}</td>
         <td>{{ row["entry"] }}</td>
         <td>{{ row["time"] }}</td>
         <td>
-          <form action="/view" method="post">
           <button class="btn btn-primary new-entry-btn inline btnalt" name="edit" type="submit" value={{ row["id"] }}>View</button>
-          <button class="btn btn-primary new-entry-btn inline btnalt" name="delete" type="submit" value={{ row["id"] }}>Delete</button>
-          </form>
+          <input name="delete" class="form-check-input" id="flexCheckDefault" type="checkbox" value={{ row["id"] }} onchange="check();">
         </td>
       </tr>
       {% endfor %}
@@ -48,7 +47,16 @@
         <td></td>
         <td></td>
         <td>
-      <a class="btn btn-primary new-entry-btn" id="downloadbtn" href="/download" name="download" role="button">Download Entries</a>
+          <input class="btn btn-primary new-entry-btn downloadbtn" id="deletecheck" disabled type="submit" value="Delete Selected">
+        </td>
+        </form>
+      </tr>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>
+          <a class="btn btn-primary new-entry-btn downloadbtn" href="/download" name="download" role="button">Download Entries</a>
         </td>
       </tr>
     </tfoot>

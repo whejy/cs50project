@@ -22,6 +22,29 @@
   };
 
 
+  // Determines On state for delete button in dashboard view and highlights relevant table row
+  function check () {
+    var el = document.getElementsByName("delete");
+    var disabled = true;
+    for (var i = 0; i < el.length; i++) {
+      var row = el[i].getAttribute("value");
+      if (disabled == true) {
+        document.getElementById("deletecheck").setAttribute("disabled", true);
+      }
+      if (el[i].checked) {
+        document.getElementById("deletecheck").removeAttribute("disabled");
+        document.getElementById(row).style.backgroundColor = "#EB617C";
+        disabled = false;
+        continue;
+      }
+      if (el[i].checked == false) {
+        document.getElementById(row).style.backgroundColor = "";
+        continue;
+      }
+    }
+  }
+
+
   // Checks current background image and preselects the relevant option in Selection Box
   function selectcheck () {
     var sel = document.getElementById('padCheck');
