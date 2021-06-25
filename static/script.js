@@ -22,12 +22,42 @@
   };
 
 
-  // Determines On state for "Download Entries" button in dashboard view
+  // Determines On state for "Download Entries" and "Select All" buttons in dashboard view
   function downloadCheck() {
     var el = document.getElementsByName("delete");
     if (el.length == 0) {
         document.getElementById("download").setAttribute("class", "btn btn-primary new-entry-btn downloadbtn disabled");
+        document.getElementById("selectAll").setAttribute("disabled", true);
       }
+  }
+
+
+  // Handles behaviour for the "Select All" button in dashboard view
+  function selectAll() {
+    var el = document.getElementsByName("delete");
+    var allChecked = false;
+    var counter = 0;
+    if (el) {
+      for (var i = 0; i < el.length; i++) {
+        if (el[i].checked == true){
+          counter++;
+          if (el.length == counter) {
+            allChecked = true;
+          }
+        }
+      }
+      if (allChecked == false) {
+        for (var i = 0; i < el.length; i++) {
+          el[i].checked = true;
+        }
+      }
+      if (allChecked == true) {
+        for (var i = 0; i < el.length; i++) {
+          el[i].checked = false;
+        }
+      }
+    }
+  check();
   }
 
 
