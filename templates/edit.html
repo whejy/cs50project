@@ -6,7 +6,7 @@
 
 {% block main %}
       <div class="container-fluid" id="paper" style="background-image: {{ image }}; font-family: {{ font }};">
-        <form action="/edit" method="post">
+        <form action="/edit" method="post" onsubmit="disableBtn()">
           {% for row in entry %}
           <span type="text">
             <textarea class="field bold italic center" name="title" maxlength="25" autocomplete="off">{{ row['title']}}</textarea>
@@ -18,7 +18,7 @@
           <div class="row justify-content-md-center">
              <div class="col-md-auto">
             <button class="btn btn-dark inline" name="update" type="submit" value="{{ viewid }}">Update</button>
-            <button class="btn btn-dark inline" name="delete" type="submit" value="{{ viewid }}" >Delete</button>
+            <button class="btn btn-dark inline" name="delete" type="submit" value="{{ viewid }}">Delete</button>
             </div>
           </div>
           {% endfor %}

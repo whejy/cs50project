@@ -243,34 +243,23 @@ def view():
 
     """ Allow user to update or delete entries from dashboard"""
 
-    viewid = request.form.get("edit")
-    #delid = request.form.get("delete")
+    viewid = request.form.get("view")
     checked = request.form.getlist("delete")
 
-    # if delid:
-    #     db.execute("""
-    #     DELETE
-    #     FROM entries
-    #     WHERE id = ?
-    #     """, delid)
+    if not viewid:
+        if checked:
+            for i in checked:
+                db.execute("""
+                DELETE FROM entries
+                WHERE id = ?
+                """, i)
+            if len(checked) < 2:
+                flash("Entry deleted.", "success")
+            else:
+                flash(f"{len(checked)} entries deleted.", "success")
+            return redirect("/dashboard")
 
-    #     flash("Entry deleted.", "success")
-
-    #     return redirect("/dashboard")
-
-    if checked:
-        for i in checked:
-            db.execute("""
-            DELETE FROM entries
-            WHERE id = ?
-            """, i)
-        if len(checked) < 2:
-            flash("Entry deleted.", "success")
-        else:
-            flash(f"{len(checked)} entries deleted.", "success")
-        return redirect("/dashboard")
-
-    if viewid:
+    else:
         entry = db.execute("""
         SELECT entry, title
         FROM entries

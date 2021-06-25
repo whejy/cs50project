@@ -6,14 +6,14 @@
 
 {% block main %}
       <div class="container-fluid" id="paper" style="background-image: {{ image }}; font-family: {{ font }};">
-        <form action="/entry" method="post">
+        <form action="/entry" method="post" onsubmit="disableBtn()">
           <span type="text">
             <textarea class="field bold italic center" name="title" autocomplete="off" maxlength="25" placeholder="Untitled"></textarea>
           </span>
           <div class="grow-wrap">
             <textarea class="field" name="entry" onInput="this.parentNode.dataset.replicatedValue = this.value" autocomplete="off" placeholder="Dear Diary..." autofocus></textarea>
           </div>
-          <br><br><button class="btn btn-dark" type="submit">Add Entry</button>
+          <br><br><button class="btn btn-dark" type="submit" onclick="this.form.submit(); this.disabled = true;">Add Entry</button>
           <input type="hidden" id="fontSelector" name="fontSelector" />
           <input type="hidden" id="padSelector" name="padSelector" />
         </form>

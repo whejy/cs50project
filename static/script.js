@@ -22,7 +22,16 @@
   };
 
 
-  // Determines On state for delete button in dashboard view and highlights relevant table row
+  // Determines On state for "Download Entries" button in dashboard view
+  function downloadCheck() {
+    var el = document.getElementsByName("delete");
+    if (el.length == 0) {
+        document.getElementById("download").setAttribute("class", "btn btn-primary new-entry-btn downloadbtn disabled");
+      }
+  }
+
+
+  // Determines On state for delete button in dashboard view and highlights relevant table rows
   function check () {
     var el = document.getElementsByName("delete");
     var disabled = true;
@@ -33,7 +42,7 @@
       }
       if (el[i].checked) {
         document.getElementById("deletecheck").removeAttribute("disabled");
-        document.getElementById(row).style.backgroundColor = "#EB617C";
+        document.getElementById(row).style.backgroundColor = "#844D36";
         disabled = false;
         continue;
       }
@@ -95,6 +104,16 @@
         grower.dataset.replicatedValue = textarea.value;
         });
     });
+  }
+
+
+  // Disables submit buttons after being clicked. Prevents submitting form multiple times.
+  function disableBtn() {setTimeout(function() {
+    var btn = document.getElementsByClassName("btn");
+    for (var i = 0; i < btn.length; i++) {
+      btn[i].setAttribute("disabled", true);
+    }
+  },0);
   }
 
 

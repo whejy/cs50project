@@ -7,7 +7,7 @@
 {% block main %}
     <h1 class="display-4 center">Log in to save your latest entry!</h1>
     <div class="container-fluid" id="layout">
-        <form action="/login" method="post">
+        <form action="/login" method="post" onsubmit="disableBtn()">
             <div class="form-group">
                 <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text" required>
             </div>
@@ -19,7 +19,7 @@
     </div>
     <h3 class="center">Don't have an account?</h1>
     <div class="container-fluid" id="layout">
-        <form action="/register" method="post">
+        <form action="/register" method="post" onsubmit="disableBtn()">
             <div class="form-group">
                 <input autocomplete="off" class="form-control" name="username" placeholder="Username" type="text" required>
             </div>

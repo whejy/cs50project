@@ -35,7 +35,7 @@
         <td>{{ row["entry"] }}</td>
         <td>{{ row["time"] }}</td>
         <td>
-          <button class="btn btn-primary new-entry-btn inline btnalt" name="edit" type="submit" value={{ row["id"] }}>View</button>
+          <button class="btn btn-primary new-entry-btn inline btnalt" name="view" type="submit" value={{ row["id"] }}>View</button>
           <input name="delete" class="form-check-input" id="flexCheckDefault" type="checkbox" value={{ row["id"] }} onchange="check();">
         </td>
       </tr>
@@ -56,8 +56,10 @@
         <td></td>
         <td></td>
         <td>
-          <a class="btn btn-primary new-entry-btn downloadbtn" href="/download" name="download" role="button">Download Entries</a>
+          <a class="btn btn-primary new-entry-btn downloadbtn" href="/download" name="download" id="download" role="button">Download Entries</a>
         </td>
+        <!-- Trigger On state function for download button -->
+        <img src onerror="downloadCheck();">
       </tr>
     </tfoot>
   </table>

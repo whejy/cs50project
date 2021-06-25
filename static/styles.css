@@ -102,12 +102,18 @@ select {
 }
 
 #passform {
-    padding-top: 50px;
+    padding-top: 25px;
 }
 
 .passtitle {
     padding-top: 150px !important;
     padding-bottom: 0px !important;
+}
+
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  background-color: #474853 !important;
 }
 
 
