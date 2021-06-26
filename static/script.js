@@ -22,11 +22,10 @@
   };
 
 
-  // Determines On state for "Download Entries" and "Select All" buttons in dashboard view
+  // Determines On state for "Select All" button in dashboard view
   function downloadCheck() {
     var el = document.getElementsByName("delete");
     if (el.length == 0) {
-        document.getElementById("download").setAttribute("class", "btn btn-primary new-entry-btn downloadbtn disabled");
         document.getElementById("selectAll").setAttribute("disabled", true);
       }
   }
@@ -61,7 +60,7 @@
   }
 
 
-  // Determines On state for delete button in dashboard view and highlights relevant table rows
+  // Determines On state for delete/ download buttons in dashboard view and highlights relevant table rows
   function check () {
     var el = document.getElementsByName("delete");
     var disabled = true;
@@ -69,9 +68,11 @@
       var row = el[i].getAttribute("value");
       if (disabled == true) {
         document.getElementById("deletecheck").setAttribute("disabled", true);
+        document.getElementById("download").setAttribute("disabled", true);
       }
       if (el[i].checked) {
         document.getElementById("deletecheck").removeAttribute("disabled");
+        document.getElementById("download").removeAttribute("disabled");
         document.getElementById(row).style.backgroundColor = "#844D36";
         disabled = false;
         continue;

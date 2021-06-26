@@ -9,7 +9,7 @@ from zipfile import ZipFile
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import login_required
+from helpers import login_required, downloadEntries
 
 # Configure application
 app = Flask(__name__)
@@ -62,7 +62,6 @@ FONTS = [
 # Character limits for preview in Dashboard view
 ENTRYLIMIT = 79
 TITLELIMIT = 9
-
 
 @app.route("/")
 def index():
@@ -127,38 +126,7 @@ def download():
     ORDER BY time
     """, session["user_id"])
 
-    # Create a text file for each entry and then create a zip file containing those text files, using "counter" as a workaround
-    # for duplicate entry titles
-    if entry:
-        counter=0
-        for row in entry:
-            counter+=1
-            save_path = 'static/temp/'
-            file_name = "{} (Entry {}).txt".format(row['title'], str(counter))
-            file_entry = "{}\n\n{}".format(row['time'], row['entry'])
-            completeName = os.path.join(save_path, file_name)
-            zipfilename = "MyEntries.zip"
-            with open (completeName, "w") as text_file:
-                text_file.write(file_entry)
-
-            with ZipFile(zipfilename, 'a') as zipObj:
-              zipObj.write(completeName, basename(completeName))
-
-        # After zip file has been served, remove from server
-        @after_this_request
-        def remove_file(response):
-            os.remove(zipfilename)
-            return response
-
-        return send_file('MyEntries.zip',
-                        mimetype="application/zip",
-                        as_attachment=True,
-                        cache_timeout=0
-                        )
-
-    else:
-        flash("No entries to download.", "error")
-        return redirect("/dashboard")
+    downloadEntries(entry)
 
 
 @app.route("/dashboard", methods=["GET"])
@@ -238,27 +206,74 @@ def dashboard():
                             )
 
 
-@app.route("/view", methods=["POST"])
+@app.route("/view", methods=["GET", "POST"])
+@login_required
 def view():
 
-    """ Allow user to update or delete entries from dashboard"""
+    """ Allow user to update, delete or download entries from dashboard"""
 
     viewid = request.form.get("view")
     checked = request.form.getlist("delete")
+    download = request.form.get("download")
 
-    if not viewid:
-        if checked:
-            for i in checked:
-                db.execute("""
-                DELETE FROM entries
-                WHERE id = ?
-                """, i)
-            if len(checked) < 2:
-                flash("Entry deleted.", "success")
-            else:
-                flash(f"{len(checked)} entries deleted.", "success")
+    # User requesting to download all files via "delete account" button
+    if request.method == "GET":
+        entry = db.execute("""
+                SELECT entry, title, time
+                FROM entries
+                WHERE user_id = ?
+                ORDER BY time
+                """, session["user_id"])
+
+        if entry:
+            downloadEntries(entry)
+            return send_file('MyEntries.zip',
+                            mimetype="application/zip",
+                            as_attachment=True,
+                            cache_timeout=0
+                            )
+        else:
+            flash("No entries to download.", "error")
             return redirect("/dashboard")
 
+    # User requesting to download or delete checked files via dashboard
+    if not viewid:
+        if checked:
+            if not download:
+                for i in checked:
+                    db.execute("""
+                    DELETE FROM entries
+                    WHERE id = ?
+                    """, i)
+                if len(checked) < 2:
+                    flash("Entry deleted.", "success")
+                else:
+                    flash(f"{len(checked)} entries deleted.", "success")
+                return redirect("/dashboard")
+
+            # User has requested to download checked files
+            else:
+                entry = []
+                for i in checked:
+                    prep = db.execute("""
+                    SELECT entry, title, time
+                    FROM entries
+                    WHERE user_id = ?
+                    AND id in (?)
+                    ORDER BY time
+                    """, session["user_id"], i)
+
+                    entry = entry + prep
+
+                if entry:
+                    downloadEntries(entry)
+                    return send_file('MyEntries.zip',
+                                    mimetype="application/zip",
+                                    as_attachment=True,
+                                    cache_timeout=0
+                                    )
+
+    # User clicked "view"
     else:
         entry = db.execute("""
         SELECT entry, title
@@ -591,7 +606,7 @@ def password():
         UPDATE users
         SET hash = ?
         WHERE id = ?
-        """, generate_password_hash(newPword, session["user_id"]))
+        """, generate_password_hash(newPword), session["user_id"])
 
         flash("Password change successful.", "success")
 
