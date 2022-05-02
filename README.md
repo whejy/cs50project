@@ -1,5 +1,10 @@
 # MY JOURNAL
-#### Video Demo:    https://youtu.be/dInWV_3cA1Y
+
+Final project for CS50 Introduction to Computer Science with Python.
+
+#### [Demonstration video](https://youtu.be/dInWV_3cA1Y)
+
+
 #### Description:
 My Journal is a web application that provides a way to create and
 manage an online journal. My goal is to provide an experience as close as possible to simply
